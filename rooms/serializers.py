@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from .models import Room, Amenity
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
@@ -13,6 +14,9 @@ class AmenitySerializer(ModelSerializer):
         
         
 class RoomListSerializer(ModelSerializer):
+    
+    rating = serializers.SerializerMethodField()
+    
     class Meta():
         model = Room
         fields = (
@@ -21,7 +25,11 @@ class RoomListSerializer(ModelSerializer):
             "country",
             "city",
             "price",
+            "rating",
         )
+        
+    def get_rating(self, room):
+        return room.average_rating()
 
 
 class RoomDetailSerializer(ModelSerializer):
@@ -29,8 +37,14 @@ class RoomDetailSerializer(ModelSerializer):
     owner = TinyUserSerializer(read_only=True) # owner FK를 확장할 때 이 serializer를 사용해라
     amenities = AmenitySerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    rating = serializers.SerializerMethodField()
     
     class Meta():
         model = Room
         fields = "__all__"
+        
+    # 메소드 이름은 무조건 **get_속성이름**
+    # 파라미터 -> self, 현재 serializing하고 있는 객체
+    def get_rating(self, room):
+        return room.average_rating()
 
