@@ -175,6 +175,29 @@ class RoomReviews(APIView):
         serializer = ReviewSerializer(room.reviews.all()[start:end], many=True)
         return Response(serializer.data)
         
+class RoomAmenities(APIView):
+    
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+        
+    def get(self, request, pk):
+        try:
+            page = int(request.query_params.get('page', 1))
+            print(page)
+        except ValueError:
+            page = 1
+            
+        page_size = 3 # 한 번에 3개씩
+        start = (page - 1) * page_size
+        end = start + page_size
+        room = self.get_object(pk)
+        serializer = AmenitySerializer(room.amenities.all()[start:end], many=True)
+        return Response(serializer.data)
+        
+
 
 """
 {
