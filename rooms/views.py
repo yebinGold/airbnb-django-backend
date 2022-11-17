@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db import transaction
@@ -165,7 +166,7 @@ class RoomReviews(APIView):
         except ValueError:
             page = 1
             
-        page_size = 3 # 한 번에 3개씩
+        page_size = settings.PAGE_SIZE # 한 번에 3개씩
         start = (page - 1) * page_size
         end = start + page_size
         room = self.get_object(pk)
@@ -187,7 +188,7 @@ class RoomAmenities(APIView):
         except ValueError:
             page = 1
             
-        page_size = 3 # 한 번에 3개씩
+        page_size = settings.PAGE_SIZE # 한 번에 3개씩
         start = (page - 1) * page_size
         end = start + page_size
         room = self.get_object(pk)

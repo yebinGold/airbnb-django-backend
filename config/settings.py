@@ -149,3 +149,5 @@ AUTH_USER_MODEL = 'users.User' # 장고에게 기본 모델 말고 직접 생성
 MEDIA_ROOT = "uploads" # 파일 저장할 폴더 이름
 
 MEDIA_URL = "user-uploads/"
+
+PAGE_SIZE = 3
