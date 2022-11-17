@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db import transaction
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, PermissionDenied
+from rest_framework.exceptions import NotFound, ParseError, PermissionDenied
 from rest_framework.status import HTTP_204_NO_CONTENT
 from .models import Room, Amenity
 from categories.models import Category
@@ -56,7 +56,6 @@ class AmenityDetail(APIView):
         return Response(status=HTTP_204_NO_CONTENT)
 
 
-
 class Rooms(APIView):
     
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -91,6 +90,7 @@ class Rooms(APIView):
             
         else:
             return Response(serializer.errors)
+    
     
 class RoomDetail(APIView):
     
@@ -150,8 +150,11 @@ class RoomDetail(APIView):
             raise PermissionDenied
         room.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+   
     
 class RoomReviews(APIView):
+    
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
     def get_object(self, pk):
         try:
@@ -173,6 +176,16 @@ class RoomReviews(APIView):
         serializer = ReviewSerializer(room.reviews.all()[start:end], many=True)
         return Response(serializer.data)
         
+    def post(self, request, pk):
+        room = self.get_object(pk)  
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            review = serializer.save(user=request.user, room=room)
+            return Response(ReviewSerializer(review).data)
+        else:
+            return Response(serializer.errors)
+   
+    
 class RoomAmenities(APIView):
     
     def get_object(self, pk):
@@ -194,6 +207,7 @@ class RoomAmenities(APIView):
         room = self.get_object(pk)
         serializer = AmenitySerializer(room.amenities.all()[start:end], many=True)
         return Response(serializer.data)
+   
         
 class RoomPhotos(APIView):
     
