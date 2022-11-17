@@ -145,3 +145,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #Auth
 
 AUTH_USER_MODEL = 'users.User' # 장고에게 기본 모델 말고 직접 생성한 모델을 사용하라고 알려줌
+
+MEDIA_ROOT = "uploads" # 파일 저장할 폴더 이름
+
+MEDIA_URL = "user-uploads/"

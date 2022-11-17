@@ -197,6 +197,10 @@ class RoomAmenities(APIView):
         serializer = AmenitySerializer(room.amenities.all()[start:end], many=True)
         return Response(serializer.data)
         
+class RoomPhotos(APIView):
+    
+    def post(self, request, pk):
+        pass
 
 
 """
