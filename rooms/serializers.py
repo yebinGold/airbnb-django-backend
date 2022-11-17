@@ -18,6 +18,7 @@ class AmenitySerializer(ModelSerializer):
 class RoomListSerializer(ModelSerializer):
     
     rating = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()
     photos = PhotoSerializer(many=True, read_only=True)
     
     class Meta():
@@ -29,11 +30,16 @@ class RoomListSerializer(ModelSerializer):
             "city",
             "price",
             "rating",
+            "is_owner",
             "photos",
         )
         
     def get_rating(self, room):
         return room.average_rating()
+    
+    def get_is_owner(self, room):
+        request = self.context['request']
+        return room.owner == request.user
 
 
 class RoomDetailSerializer(ModelSerializer):
