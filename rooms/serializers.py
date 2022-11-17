@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from .models import Room, Amenity
+from wishlists.models import Wishlist
 from users.serializers import TinyUserSerializer
 from reviews.serializers import ReviewSerializer
 from categories.serializers import CategorySerializer
@@ -50,6 +51,7 @@ class RoomDetailSerializer(ModelSerializer):
     rating = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()
     photos = PhotoSerializer(many=True, read_only=True)
+    in_my_wishlist = serializers.SerializerMethodField() # wishlist에 포함된 상태임을 나타내는 필드
     
     class Meta():
         model = Room
@@ -63,4 +65,12 @@ class RoomDetailSerializer(ModelSerializer):
     def get_is_owner(self, room):
         request = self.context['request']
         return room.owner == request.user
+    
+    def get_in_my_wishlist(self, room):
+        request = self.context['request']
+        return Wishlist.objects.filter(
+            user=request.user, 
+            rooms__pk=room.pk,
+        ).exists() # 요청 보낸 유저의 wishlists 중 해당 room을 포함하는 wishlist의 존재 여부
+        
 
