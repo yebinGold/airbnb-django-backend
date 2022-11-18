@@ -6,6 +6,7 @@ urlpatterns = [
     path("me", views.Me.as_view()),
     path("me/reviews", views.MyReviews.as_view()),
     path("me/wishlists", views.MyWishlists.as_view()),
+    path("me/bookings", views.MyBookings.as_view()),
     path("change-password", views.ChangePassword.as_view()),
     path("log-in", views.LogIn.as_view()),
     path("log-out", views.LogOut.as_view()),

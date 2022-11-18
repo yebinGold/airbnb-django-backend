@@ -10,6 +10,8 @@ from .models import User
 
 from reviews.serializers import UserReviewListSerializer
 from wishlists.serializers import WishlistSerializer
+from bookings.serializers import PublicBookingSerializer
+from bookings.models import Booking
 
 
 class Me(APIView):
@@ -53,6 +55,21 @@ class MyWishlists(APIView):
         serializer = WishlistSerializer(wishlists, many=True, context={'request':request})
         return Response(serializer.data)
 
+
+class MyBookings(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        room_bookings = user.bookings.filter(kind=Booking.BookingKindChoices.ROOM)
+        experience_bookings = user.bookings.filter(kind=Booking.BookingKindChoices.EXPERIENCE)
+        rb_serializer = PublicBookingSerializer(room_bookings, many=True)
+        exb_serializer = PublicBookingSerializer(experience_bookings, many=True)
+        return Response({
+            "forRooms": rb_serializer.data,
+            "forExperiences": exb_serializer.data
+        })
 
 
 class Users(APIView):
