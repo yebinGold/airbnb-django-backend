@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from .models import Perk, Experience
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
@@ -28,7 +29,14 @@ class ExperienceDetailSerializer(ModelSerializer):
     host = TinyUserSerializer(read_only=True)
     perks = PerkSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    start = serializers.TimeField()
+    end = serializers.TimeField()
     
     class Meta:
         model = Experience
         fields = "__all__"
+        
+    def validate(self, data):
+        if data['start'] >= data['end']:
+            raise serializers.ValidationError("start time should be earlier than end time.")
+        return data
