@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from . import serializers
 from .models import Perk, Experience
+from categories.models import Category
 
 
 class Perks(APIView):
@@ -65,7 +66,16 @@ class Experiences(APIView):
  
         serializer = serializers.ExperienceDetailSerializer(data=request.data)
         if serializer.is_valid():
-            new_experience = serializer.save(host=request.user)
+            category_pk = request.data.get("category")
+            if not category_pk:
+                raise ParseError("Category is required.")
+            try:
+                category = Category.objects.get(pk=category_pk)
+                if category.kind == Category.CategoryKindChoices.ROOMS:
+                    raise ParseError("The category kind should be 'experiences'")
+            except Category.DoesNotExist:
+                raise ParseError("Category not found")
+            new_experience = serializer.save(host=request.user, category=category)
             return Response(serializers.ExperienceDetailSerializer(new_experience).data)
         else:
             return Response(serializer.errors)
