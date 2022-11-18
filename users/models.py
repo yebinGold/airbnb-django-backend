@@ -23,7 +23,7 @@ class User(AbstractUser):
     # custom
     name = models.CharField(max_length=150, default="")
     is_host = models.BooleanField(default=False)
-    profile_photo = models.ImageField(blank=True)
+    profile_photo = models.URLField(blank=True)
     gender = models.CharField(max_length=10, choices=GenderChoices.choices)
     language = models.CharField(max_length=2, choices=LanguageChoices.choices)
     currency = models.CharField(max_length=5, choices=CurrencyChoices.choices)
