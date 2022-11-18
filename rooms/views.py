@@ -264,12 +264,9 @@ class RoomBookings(APIView):
         room = self.get_object(pk)
         serializer = CreateRoomBookingerializer(data=request.data)
         if serializer.is_valid():
-            # custom validation 미래 날짜의 예약만 받아와야 함
-            check_in = request.data.get("check_in")
-            
-            
-            new_room = serializer.save(user=request.user, room=room, kind=Booking.BookingKindChoices.ROOM)
-            return Response(PublicBookingSerializer(new_room).data)
+            # custom validation 미래 날짜의 예약만 받아와야 함            
+            booking = serializer.save(user=request.user, room=room, kind=Booking.BookingKindChoices.ROOM)
+            return Response(PublicBookingSerializer(booking).data)
         else:
             return Response(serializer.errors)
 
