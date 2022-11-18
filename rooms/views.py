@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 from django.db import transaction
 
 from rest_framework.views import APIView
@@ -250,7 +251,12 @@ class RoomBookings(APIView):
     
     def get(self, request, pk):
         room = self.get_object(pk)
-        bookings = Booking.objects.filter(room=room, kind=Booking.BookingKindChoices.ROOM)
+        now = timezone.localtime(timezone.now()).date()
+        bookings = Booking.objects.filter(
+            room=room, 
+            kind=Booking.BookingKindChoices.ROOM,
+            check_in__gt=now, # 현재 날짜보다 뒤의 예약만 보여줌
+        )
         serializer = PublicBookingSerializer(bookings, many=True)
         return Response(serializer.data)
         
