@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, ParseError
-from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.exceptions import NotFound, ParseError, PermissionDenied
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from . import serializers
 from .models import Perk, Experience
@@ -49,7 +49,7 @@ class PerkDetail(APIView):
     def delete(self, request, pk):
         perk = self.get_object(pk)
         perk.delete()
-        return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_200_OK)
     
     
 class Experiences(APIView):
@@ -90,4 +90,8 @@ class ExperienceDetail(APIView):
         pass
     
     def delete(self, request, pk):
-        pass
+        experience = self.get_object(pk)
+        if experience.host != request.user:
+            raise PermissionDenied
+        experience.delete()
+        return Response(status=status.HTTP_200_OK)
