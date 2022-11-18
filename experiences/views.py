@@ -1,3 +1,5 @@
+from django.db import transaction
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, ParseError, PermissionDenied
@@ -75,8 +77,16 @@ class Experiences(APIView):
                     raise ParseError("The category kind should be 'experiences'")
             except Category.DoesNotExist:
                 raise ParseError("Category not found")
-            new_experience = serializer.save(host=request.user, category=category)
-            return Response(serializers.ExperienceDetailSerializer(new_experience).data)
+            try:
+                with transaction.atomic():
+                    new_experience = serializer.save(host=request.user, category=category)
+                    perks = request.data.get("perks") # 추가할 perk id 리스트
+                    for perk_pk in perks:
+                        perk = Perk.objects.get(pk=perk_pk)
+                        new_experience.perks.add(perk)
+                    return Response(serializers.ExperienceDetailSerializer(new_experience).data)
+            except Exception:
+                raise ParseError("Perk not found")
         else:
             return Response(serializer.errors)
         
