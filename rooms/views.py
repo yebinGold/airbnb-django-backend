@@ -14,7 +14,7 @@ from .serializers import RoomListSerializer, RoomDetailSerializer, AmenitySerial
 from categories.models import Category
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
-from bookings.serializers import PublicBookingSerializer
+from bookings.serializers import PublicBookingSerializer, CreateRoomBookingerializer
 from bookings.models import Booking
 
 
@@ -260,6 +260,19 @@ class RoomBookings(APIView):
         serializer = PublicBookingSerializer(bookings, many=True)
         return Response(serializer.data)
         
+    def post(self, request, pk):
+        room = self.get_object(pk)
+        serializer = CreateRoomBookingerializer(data=request.data)
+        if serializer.is_valid():
+            # custom validation 미래 날짜의 예약만 받아와야 함
+            check_in = request.data.get("check_in")
+            
+            
+            new_room = serializer.save(user=request.user, room=room, kind=Booking.BookingKindChoices.ROOM)
+            return Response(PublicBookingSerializer(new_room).data)
+        else:
+            return Response(serializer.errors)
+
 
 """
 {
