@@ -1,5 +1,4 @@
 from rest_framework.serializers import ModelSerializer
-from rest_framework.response import Response
 from .models import User
 
 class TinyUserSerializer(ModelSerializer):
@@ -25,4 +24,21 @@ class PrivateUserSerializer(ModelSerializer):
             "last_name",
             "groups",
             "user_permissions"
+        )
+        
+
+class PublicUserSerializer(ModelSerializer):
+    
+    
+    
+    class Meta:
+        model = User
+        fields = (
+            "name",
+            "email",
+            "profile_photo",
+            "username",
+            "gender",
+            "language",
+            "currency",
         )
