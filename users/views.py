@@ -8,6 +8,9 @@ from rest_framework import status
 from .serializers import PrivateUserSerializer, PublicUserSerializer
 from .models import User
 
+from reviews.serializers import UserReviewListSerializer
+
+
 class Me(APIView):
     
     """ My Profile """
@@ -26,6 +29,18 @@ class Me(APIView):
             return Response(PrivateUserSerializer(updated_user).data)
         else:
             return Response(serializer.errors)
+
+
+class MyReviews(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        my_reviews = user.reviews.all()
+        serializer = UserReviewListSerializer(my_reviews, many=True)
+        return Response(serializer.data)
+
 
 
 class Users(APIView):
