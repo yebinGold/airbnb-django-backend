@@ -1,3 +1,5 @@
+from django.contrib.auth import authenticate, login, logout
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -75,3 +77,28 @@ class ChangePassword(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
 
+class LogIn(APIView):
+    
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        if not username or not password:
+            raise ParseError
+        user = authenticate(request, 
+                            username=username, 
+                            password=password
+        ) # 해당 정보에 맞는 user가 있다면 찾아옴
+        if user:
+            login(request, user) # user를 로그인 시키고 세션 생성, 사용자에게 cookie를 보내줌
+            return Response({"ok": "welcome!"})
+        else:
+            return Response({"error": "일치하는 유저가 없습니다."})
+
+
+class LogOut(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        logout(request)
+        return Response({"ok": "bye!"})

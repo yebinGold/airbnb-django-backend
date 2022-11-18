@@ -28,9 +28,6 @@ class PrivateUserSerializer(ModelSerializer):
         
 
 class PublicUserSerializer(ModelSerializer):
-    
-    
-    
     class Meta:
         model = User
         fields = (
