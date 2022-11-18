@@ -9,6 +9,7 @@ from .serializers import PrivateUserSerializer, PublicUserSerializer
 from .models import User
 
 from reviews.serializers import UserReviewListSerializer
+from wishlists.serializers import WishlistSerializer
 
 
 class Me(APIView):
@@ -39,6 +40,17 @@ class MyReviews(APIView):
         user = request.user
         my_reviews = user.reviews.all()
         serializer = UserReviewListSerializer(my_reviews, many=True)
+        return Response(serializer.data)
+
+
+class MyWishlists(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        wishlists = user.wishlists.all()
+        serializer = WishlistSerializer(wishlists, many=True, context={'request':request})
         return Response(serializer.data)
 
 
