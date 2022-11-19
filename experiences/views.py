@@ -9,6 +9,7 @@ from . import serializers
 from .models import Perk, Experience
 from categories.models import Category
 from medias.serializers import PhotoSerializer
+from reviews.serializers import ReviewSerializer
 
 
 class Perks(APIView):
@@ -191,4 +192,27 @@ class ExperiencePhotos(APIView):
             return Response(serializer.errors)
         
     
+class ExperienceReviews(APIView):
     
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_object(self, pk):
+        try:
+            return Experience.objects.get(pk=pk)
+        except Experience.DoesNotExist:
+            raise NotFound
+        
+    def get(self, request, pk):
+        experience = self.get_object(pk)
+        all_reviews = experience.reviews.all()
+        serializer = ReviewSerializer(all_reviews, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, pk):
+        experience = self.get_object(pk)
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            review = serializer.save(user=request.user, experience=experience)
+            return Response(ReviewSerializer(review).data)
+        else:
+            return Response(serializer.errors)
