@@ -37,6 +37,10 @@ class ExperienceDetailSerializer(ModelSerializer):
         fields = "__all__"
         
     def validate(self, data):
-        if data['start'] >= data['end']:
+        experience = Experience.objects.get(pk=self.context["pk"])
+        
+        start = data['start'] if "start" in data else experience.start
+        end = data['end'] if "end" in data else experience.end
+        if start >= end:
             raise serializers.ValidationError("start time should be earlier than end time.")
         return data
