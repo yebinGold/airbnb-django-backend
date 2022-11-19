@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Perk, Experience
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
+from medias.serializers import PhotoSerializer
 
 class PerkSerializer(ModelSerializer):
     class Meta():
@@ -31,6 +32,7 @@ class ExperienceDetailSerializer(ModelSerializer):
     category = CategorySerializer(read_only=True)
     start = serializers.TimeField()
     end = serializers.TimeField()
+    photos = PhotoSerializer(many=True, read_only=True)
     
     class Meta:
         model = Experience

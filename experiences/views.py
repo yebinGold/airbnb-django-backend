@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from . import serializers
 from .models import Perk, Experience
 from categories.models import Category
+from medias.serializers import PhotoSerializer
 
 
 class Perks(APIView):
@@ -153,6 +154,8 @@ class ExperienceDetail(APIView):
     
 class ExperiencePerks(APIView):
     
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
     def get_object(self, pk):
         try:
             return Experience.objects.get(pk=pk)
@@ -164,4 +167,28 @@ class ExperiencePerks(APIView):
         all_perks = experience.perks.all()
         serializer = serializers.PerkSerializer(all_perks, many=True)
         return Response(serializer.data)
+
+
+class ExperiencePhotos(APIView):
+    
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_object(self, pk):
+        try:
+            return Experience.objects.get(pk=pk)
+        except Experience.DoesNotExist:
+            raise NotFound
         
+    def post(self, request, pk):
+        experience = self.get_object(pk)
+        if experience.host != request.user:
+            raise PermissionDenied
+        serializer = PhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            photo = serializer.save(experience=experience)
+            return Response(PhotoSerializer(photo).data)
+        else: 
+            return Response(serializer.errors)
+        
+    
+    
