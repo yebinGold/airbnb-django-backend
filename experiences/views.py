@@ -149,3 +149,19 @@ class ExperienceDetail(APIView):
             raise PermissionDenied
         experience.delete()
         return Response(status=status.HTTP_200_OK)
+    
+    
+class ExperiencePerks(APIView):
+    
+    def get_object(self, pk):
+        try:
+            return Experience.objects.get(pk=pk)
+        except Experience.DoesNotExist:
+            raise NotFound
+     
+    def get(self, request, pk):
+        experience = self.get_object(pk)
+        all_perks = experience.perks.all()
+        serializer = serializers.PerkSerializer(all_perks, many=True)
+        return Response(serializer.data)
+        
