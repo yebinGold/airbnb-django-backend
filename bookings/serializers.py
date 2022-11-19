@@ -32,6 +32,34 @@ class CreateRoomBookingerializer(ModelSerializer):
         return data
 
 
+class CreateExperienceBookingSerializer(ModelSerializer):
+    
+    # field overriding -> as required
+    experience_time = serializers.DateTimeField()
+    
+    class Meta:
+        model = Booking
+        fields = (
+            "experience_time",
+            "guests"
+        ) # 유저에게 직접 받아와야 하는 값들
+        
+    def validate_experience_time(self, value):
+        now = timezone.localtime(timezone.now()).date()
+        start = self.context['experience'].start # 체험 시작 시간
+        end = self.context['experience'].end # 체험 끝 시간
+        date = value.date() # 예약 날짜
+        time = value.time() # 예약 시간
+        
+        if now > date:
+            raise serializers.ValidationError("Can't book in the past.")
+        if start > time or time > end:
+            raise serializers.ValidationError("No experience at that time!")
+        if Booking.objects.filter(experience_time=value).exists():
+            raise serializers.ValidationError("That schedule is already booked!")
+        return value
+        
+
 class PublicBookingSerializer(ModelSerializer):
     class Meta:
         model = Booking

@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.utils import timezone
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,6 +11,8 @@ from .models import Perk, Experience
 from categories.models import Category
 from medias.serializers import PhotoSerializer
 from reviews.serializers import ReviewSerializer
+from bookings.models import Booking
+from bookings.serializers import PublicBookingSerializer, CreateExperienceBookingSerializer
 
 
 class Perks(APIView):
@@ -216,3 +219,39 @@ class ExperienceReviews(APIView):
             return Response(ReviewSerializer(review).data)
         else:
             return Response(serializer.errors)
+        
+
+class ExperienceBookings(APIView):
+    
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_object(self, pk):
+        try:
+            return Experience.objects.get(pk=pk)
+        except Experience.DoesNotExist:
+            raise NotFound
+        
+    def get(self, request, pk):
+        experience = self.get_object(pk)
+        now = timezone.localtime(timezone.now())
+        all_bookings = experience.bookings.filter(experience_time__gt=now) # 현재 기준 이후 예약들만 보여줌
+        serializer = PublicBookingSerializer(all_bookings, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, pk):
+        experience = self.get_object(pk)
+        serializer = CreateExperienceBookingSerializer(data=request.data, context={'experience':experience})
+        if serializer.is_valid():
+            booking = serializer.save(user=request.user, experience=experience, kind=Booking.BookingKindChoices.EXPERIENCE)
+            return Response(PublicBookingSerializer(booking).data)
+        else:
+            return Response(serializer.errors)
+        
+    """
+    {
+    "experience_time":"2022-12-11 12:00:00",
+    "guests":2
+    }
+    """        
+    
+    
