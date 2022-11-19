@@ -33,6 +33,7 @@ class ExperienceDetailSerializer(ModelSerializer):
     start = serializers.TimeField()
     end = serializers.TimeField()
     photos = PhotoSerializer(many=True, read_only=True)
+    rating = serializers.SerializerMethodField()
     
     class Meta:
         model = Experience
@@ -46,3 +47,6 @@ class ExperienceDetailSerializer(ModelSerializer):
         if start >= end:
             raise serializers.ValidationError("start time should be earlier than end time.")
         return data
+    
+    def get_rating(self, experience):
+        return experience.average_rating()

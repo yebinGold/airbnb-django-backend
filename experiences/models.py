@@ -21,6 +21,15 @@ class Experience(CommonModel):
     def __str__(self) -> str:
         return self.name
     
+    def average_rating(self):
+        count = self.reviews.count()
+        if count == 0:
+            return 0
+        total = 0
+        for ratings in self.reviews.all().values('rating'):
+            total += ratings["rating"]
+        return round(total / count, 1)
+    
 
 class Perk(CommonModel):
     
