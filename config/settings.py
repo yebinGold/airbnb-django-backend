@@ -31,7 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 THIRD_PARTY_APPS = [
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 CUSTOM_APPS = [
@@ -151,3 +152,10 @@ MEDIA_ROOT = "uploads" # 파일 저장할 폴더 이름
 MEDIA_URL = "user-uploads/"
 
 PAGE_SIZE = 3
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ] # rest framework가 user를 찾는 방법들
+}
