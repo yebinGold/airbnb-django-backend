@@ -157,5 +157,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
+        "config.authentication.JWTAuthentication",
     ] # rest framework가 user를 찾는 방법들
 }
