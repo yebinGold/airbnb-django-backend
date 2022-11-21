@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
 from . import models
+from users.models import User
 
 class TestAmenities(APITestCase):
     
@@ -115,4 +116,33 @@ class TestAmenity(APITestCase):
         response = self.client.delete(self.URL+"1")
         self.assertEqual(response.status_code, 204) # 삭제되는지 확인
         
+class TestRooms(APITestCase):
+    
+    URL = "/api/v1/rooms/"
+    
+    def setUp(self):
+        user = User.objects.create(
+            username = "yyeebin"
+        )
+        user.set_password('123')
+        user.save() # 유저 생성하기
+        #self.user=user
+    
+    def test_create_room(self): 
+        # 아무 유저나 사용해서 request
+        response = self.client.post(self.URL)
         
+        self.assertEqual(response.status_code, 403, "Not Authenticated") # 인증 안 됨
+        
+        
+        # 인증된 유저(logged in) 사용해서 request   
+        self.client.login(
+            username="yyeebin",
+            password="123"
+        ) # 로그인
+        #self.client.force_login(self.user)
+        
+        response = self.client.post(self.URL)
+        
+        self.assertEqual(response.status_code, 200, "Invalid data")
+        #print(response.json()) # 에러 출력해보기
