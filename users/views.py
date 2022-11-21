@@ -32,7 +32,7 @@ class Me(APIView):
             updated_user = serializer.save()
             return Response(PrivateUserSerializer(updated_user).data)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MyReviews(APIView):
@@ -88,7 +88,7 @@ class Users(APIView):
             user.save()
             return Response(PrivateUserSerializer(user).data)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PublicUser(APIView):

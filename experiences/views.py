@@ -28,7 +28,7 @@ class Perks(APIView):
             new_perk = serializer.save()
             return Response(serializers.PerkSerializer(new_perk).data)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PerkDetail(APIView):
@@ -52,7 +52,7 @@ class PerkDetail(APIView):
             updated_perk = serializer.save()
             return Response(serializers.PerkSerializer(updated_perk).data)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def delete(self, request, pk):
         perk = self.get_object(pk)
@@ -93,7 +93,7 @@ class Experiences(APIView):
             except Exception:
                 raise ParseError("Perk not found")
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
 class ExperienceDetail(APIView):
@@ -146,7 +146,7 @@ class ExperienceDetail(APIView):
             except Exception:
                 raise ParseError("Perk not found")
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
     def delete(self, request, pk):
         experience = self.get_object(pk)
@@ -192,7 +192,7 @@ class ExperiencePhotos(APIView):
             photo = serializer.save(experience=experience)
             return Response(PhotoSerializer(photo).data)
         else: 
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     
 class ExperienceReviews(APIView):
@@ -218,7 +218,7 @@ class ExperienceReviews(APIView):
             review = serializer.save(user=request.user, experience=experience)
             return Response(ReviewSerializer(review).data)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
 class ExperienceBookings(APIView):
@@ -245,7 +245,7 @@ class ExperienceBookings(APIView):
             booking = serializer.save(user=request.user, experience=experience, kind=Booking.BookingKindChoices.EXPERIENCE)
             return Response(PublicBookingSerializer(booking).data)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     """
     {
