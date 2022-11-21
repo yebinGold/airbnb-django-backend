@@ -45,9 +45,74 @@ class TestAmenities(APITestCase):
         self.assertEqual(data["description"], new_amenity_desc, "desc not equal")
         
         
-        # invalid data
+        # invalid data - data missed
         response = self.client.post(self.URL)
         data = response.json() # 생성한 데이터
         self.assertEqual(response.status_code, 400)
-        self.assertIn("names", data)
+        self.assertIn("name", data)
+        
+        # invalid data - validation error
+        response = self.client.post(
+            self.URL, 
+            data={
+                'name':"aaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbcccccccccccccccccccccdddddddddddddddddddddddddddddddddddddddddddeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeffffffffffffffffffffffffffffffffffgggggggggggggggggggggghhhhhhhhhhhiiiiiiiiiijjjjjjjjjkkkkkkkkkkkllllllmmmmmmmmmmmnoppppppppppp", 
+                'description':self.DESC
+            }
+        )
+        data = response.json() # 생성한 데이터
+        
+        self.assertEqual(response.status_code, 400)
+                
+
+class TestAmenity(APITestCase):
+    
+    NAME = "Amenity Test"
+    DESC = "Amenity desc"
+    
+    URL = "/api/v1/rooms/amenities/"
+    
+    def setUp(self):
+        models.Amenity.objects.create(
+            name=self.NAME,
+            description=self.DESC
+        )
+        
+    def test_amenity_not_found(self):
+        response = self.client.get(self.URL+"2")
+        self.assertEqual(response.status_code, 404) # amenity가 없는 경우 에러 발생하는 지 테스트
+
+    def test_get_amenity(self):
+        response = self.client.get(self.URL+"1")
+        self.assertEqual(response.status_code, 200) # amenity가 존재하는 경우 통과하는 지 확인
+        
+        data = response.json()
+        
+        self.assertEqual(data['name'], self.NAME)
+        self.assertEqual(data['description'], self.DESC)
+    
+    def test_put_amenity(self):
+        # valid data
+        
+        new_name = "PUT TEST name"
+        new_desc = "PUT TEST desc"
+        
+        response = self.client.put(self.URL+"1", data={"name":new_name, "description":new_desc})
+        self.assertEqual(response.status_code, 200)
+        
+        data = response.json()
+        
+        self.assertEqual(data['name'], new_name)
+        self.assertEqual(data['description'], new_desc)
+        
+        # invalid data
+        response = self.client.put(self.URL+"1", data={"name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"})
+        data = response.json()
+        
+        self.assertEqual(response.status_code, 400, "maxLength validation doesn't work!")
+        
+    
+    def test_delete_amenity(self):
+        response = self.client.delete(self.URL+"1")
+        self.assertEqual(response.status_code, 204) # 삭제되는지 확인
+        
         
