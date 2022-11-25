@@ -68,9 +68,10 @@ class RoomDetailSerializer(ModelSerializer):
     
     def get_in_my_wishlist(self, room):
         request = self.context['request']
-        return Wishlist.objects.filter(
-            user=request.user, 
-            rooms__pk=room.pk,
-        ).exists() # 요청 보낸 유저의 wishlists 중 해당 room을 포함하는 wishlist의 존재 여부
-        
+        if request.user.is_authenticated:
+            return Wishlist.objects.filter(
+                user=request.user, 
+                rooms__pk=room.pk,
+            ).exists() # 요청 보낸 유저의 wishlists 중 해당 room을 포함하는 wishlist의 존재 여부
+        return False
 
