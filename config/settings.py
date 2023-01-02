@@ -172,3 +172,5 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", # react 도메인
     "http://127.0.0.1:3000" # django 도메인
 ]
+
+CORS_ALLOW_CREDENTIALS = True
