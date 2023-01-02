@@ -169,5 +169,6 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1/:3000"
+    "http://localhost:3000", # react 도메인
+    "http://127.0.0.1/:3000" # django 도메인
 ]
