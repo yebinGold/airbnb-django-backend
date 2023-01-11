@@ -1,4 +1,6 @@
 import jwt
+import requests
+
 from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from rest_framework.views import APIView
@@ -170,3 +172,51 @@ class JWTLogIn(APIView):
             return Response({"token": token})
         else:
             return Response({"error": "일치하는 유저가 없습니다."})
+        
+
+class GithubLogIn(APIView):
+    
+    def post(self, request):
+        try:
+            code = request.data.get('code')
+            access_token = requests.post(
+                f"https://github.com/login/oauth/access_token?code={code}&client_id=dd7325ccd13b98e589f2&client_secret={settings.GH_SECRET}",
+                headers={
+                    "Accept": "application/json" # json response를 요청
+                },
+                )
+            access_token = access_token.json()['access_token']
+            user_data = requests.get(
+                "https://api.github.com/user", 
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept": "application/json",
+                },
+            )
+            user_data = user_data.json()
+            user_email = requests.get(
+                "https://api.github.com/user/emails", 
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept": "application/json",
+                },
+            )
+            user_email = user_email.json()
+            try:
+                user = User.objects.get(email=user_email[0]['email']) # github에서 받은 이메일로 유처 찾기
+                login(request, user) # 유저 찾았으면 로그인 시켜주기
+                return Response(status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                user = User.objects.create(
+                    username=user_data.get('login'),
+                    email=user_email[0]['email'],
+                    name=user_data.get('name'),
+                    profile_photo=user_data.get('avatar_url'),
+                )
+                user.set_unusable_password() # password를 사용해서 로그인 불가 only by social networks
+                user.save()
+                login(request, user)
+                return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            #print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)

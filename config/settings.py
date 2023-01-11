@@ -176,3 +176,5 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:3000"] # post 요청 허락할 도메인
+
+GH_SECRET = env("GH_SECRET") # 깃허브 소셜 로그인 client secret
